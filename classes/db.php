@@ -1,5 +1,5 @@
 <?php
-require_once(dirname(__DIR__).'/db/config.php');
+require_once(dirname(__DIR__).'/config/db.php');
     
 class DB {
     private $conn;
