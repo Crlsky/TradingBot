@@ -58,6 +58,20 @@ class dataCollector {
                 VALUES ("'.$this->data['stats']['h'].'", "'.$this->data['stats']['l'].'", "'.$this->data['stats']['v'].'", "'.$this->data['stats']['r24h'].'", "'.date('Y-m-d H:i:s').'")';
         $db->Insert($sql);
     }
+
+    public function bitbayRate($market){
+        $timeFrom = (time()-60)*1000;
+        $timeTo = time()*1000;
+
+        $url = "https://api.bitbay.net/rest/trading/candle/history/{$market}/60?from={$timeFrom}&to={$timeTo}";
+        $this->setCurlUrl($url);
+        $this->execCurl();
+
+        if($this->data['status'] != "Ok")
+            return "Err";
+
+        return $this->data['items'][0][1]['o'];
+    }
 }
 
 
