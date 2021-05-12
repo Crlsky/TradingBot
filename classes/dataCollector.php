@@ -7,16 +7,15 @@ class dataCollector {
 
     public function __construct() {
         $this->curl = curl_init();
+        curl_setopt($this->curl, CURLOPT_RETURNTRANSFER, true);
     }
 
     private function setCurlUrl($url) {
         curl_setopt($this->curl, CURLOPT_URL, $url);
-        curl_setopt($this->$curl, CURLOPT_RETURNTRANSFER, true);
     }
 
-    // return transfer - true not working - idk
     public function execCurl() {
-        $this->data = curl_exec($this->curl);
+        $response = curl_exec($this->curl);
         $err = curl_error($this->curl);
         curl_close($this->curl);
 
@@ -26,7 +25,8 @@ class dataCollector {
             $this->data = json_decode($response,true);
     }
 
-    public function bitbayOrderBook($url){
+    public function bitbayETHOrderBook(){
+        $url = "https://api.bitbay.net/rest/trading/transactions/ETH-PLN?limit=150";
         $this->setCurlUrl($url);
         $this->execCurl();
 
@@ -39,16 +39,26 @@ class dataCollector {
             if(!$db->Get('SELECT * FROM  transactionHistory WHERE bitbay_transaction_id LIKE "'.$item['id'].'"')){
                 $sql = 'INSERT INTO transactionHistory (bitbay_transaction_id, date, amount, rate, type) 
                         VALUES ("'.$item['id'].'", "'.date('Y-m-d H:i:s', ($item['t']/1000)).'", "'.$item['a'].'", "'.$item['r'].'", "'.$item['ty'].'")';
-                var_dump($sql."\n");
-                //$db->Insert($sql);
+                $db->Insert($sql);
             }
         }
     }
+
+    public function bitbay24ETHRate(){
+        $url = "https://api.bitbay.net/rest/trading/stats/ETH-PLN";
+        $this->setCurlUrl($url);
+        $this->execCurl();
+
+        if($this->data == "Err" || $this->data['status'] != "Ok")
+            return 0;
+
+        $db = new DB();
+
+        $sql = 'INSERT INTO priceHistory (high, low, vol, r24h, date) 
+                VALUES ("'.$this->data['stats']['h'].'", "'.$this->data['stats']['l'].'", "'.$this->data['stats']['v'].'", "'.$this->data['stats']['r24h'].'", "'.date('Y-m-d H:i:s').'")';
+        $db->Insert($sql);
+    }
 }
-
-$a = new dataCollector();
-
-$a->bitbayOrderBook("https://api.bitbay.net/rest/trading/transactions/ETH-PLN?limit=10");
 
 
 ?>

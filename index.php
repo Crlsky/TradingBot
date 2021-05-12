@@ -1,13 +1,13 @@
 <?php
-require_once(dirname(__DIR__).'/trading/classes/db.php');
+require_once(dirname(__DIR__).'/trading/classes/dataCollector.php');
+echo '<h2>Trading</h2>';
+// $timeOfTheEndDay = "23:59";
+// $currentTime = date("H:i");
 
+// $dataCollection = new dataCollector();
+// $dataCollection->bitbayETHOrderBook();
 
-$db = new DB();
-$sql = 'SELECT * FROM transactionHistory WHERE id = 333';
-print($db->Get($sql));
-// if(get($sql))
-//     var_dump('\n jest');
-// else
-//     var_dump('\n nie ma');
+// if($currentTime==$timeOfTheEndDay)
+//     $dataCollection->bitbay24ETHRate();
 
 ?>
