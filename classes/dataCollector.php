@@ -1,34 +1,19 @@
 <?php
 require_once(dirname(__dir__)."/classes/db.php");
+require_once(dirname(__dir__)."/classes/curl.php");
 
 class dataCollector {
     private $curl;
     private $data;
 
     public function __construct() {
-        $this->curl = curl_init();
-        curl_setopt($this->curl, CURLOPT_RETURNTRANSFER, true);
-    }
-
-    private function setCurlUrl($url) {
-        curl_setopt($this->curl, CURLOPT_URL, $url);
-    }
-
-    public function execCurl() {
-        $response = curl_exec($this->curl);
-        $err = curl_error($this->curl);
-        curl_close($this->curl);
-
-        if($err)
-            $this->data = "Err";
-        else 
-            $this->data = json_decode($response,true);
+        $this->curl = new Curl();
     }
 
     public function bitbayETHOrderBook(){
         $url = "https://api.bitbay.net/rest/trading/transactions/ETH-PLN?limit=150";
-        $this->setCurlUrl($url);
-        $this->execCurl();
+        $this->curl->setCurlUrl($url);
+        $this->data = $this->curl->execCurl();
 
         if($this->data == "Err" || $this->data['status'] != "Ok")
             return 0;
@@ -46,8 +31,8 @@ class dataCollector {
 
     public function bitbay24ETHRate(){
         $url = "https://api.bitbay.net/rest/trading/stats/ETH-PLN";
-        $this->setCurlUrl($url);
-        $this->execCurl();
+        $this->curl->setCurlUrl($url);
+        $this->data = $this->curl->execCurl();
 
         if($this->data == "Err" || $this->data['status'] != "Ok")
             return 0;
@@ -62,11 +47,13 @@ class dataCollector {
     public function bitbayRate($market){
         $timeFrom = (time()-60)*1000;
         $timeTo = time()*1000;
-
+        
         $url = "https://api.bitbay.net/rest/trading/candle/history/{$market}/60?from={$timeFrom}&to={$timeTo}";
-        $this->setCurlUrl($url);
-        $this->execCurl();
+        $this->curl->setCurlUrl($url);
+  
 
+        $this->data = $this->curl->execCurl();
+        
         if($this->data['status'] != "Ok")
             return "Err";
 
