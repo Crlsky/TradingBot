@@ -34,7 +34,7 @@ class dataCollector {
         $this->curl->setCurlUrl($url);
         $this->data = $this->curl->execCurl();
 
-        if($this->data == "Err" || $this->data['status'] != "Ok")
+        if($this->data == "Err")
             return 0;
 
         $db = new DB();
@@ -58,6 +58,12 @@ class dataCollector {
             return "Err";
 
         return $this->data['items'][0][1]['o'];
+    }
+    // e. g.
+    // bitbayOrderbookLinealRegression(0.5, 0, "Buy")
+    // linear regresion from last half hour for buy orders
+    public function bitbayOrderbookLinealRegression($hourFrom, $hourTo, $type) {
+        return floatval(shell_exec("python3 ../scripts/LrOrderbookBitbay.py {$hourFrom} {$hourTo} {$type}"));
     }
 }
 

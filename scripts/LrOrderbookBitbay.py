@@ -1,3 +1,10 @@
+#############################################
+# exec with 2 arguments                     #
+# first - date from - one hour is the basis #
+# secount - date to - 0 for now             #
+# third - type of order (Sell,Buy,Both)     #
+#############################################
+import os, sys
 import sqlalchemy as db
 import pandas as pd
 
@@ -40,4 +47,9 @@ def multiRegresion(dateFrom, dateTo):
     print("For both: ")
     print(+regresion(dateFrom, dateTo, "Both"))
 
-multiRegresion(timeRange(0.5),timeRange(0))
+
+dateArgFrom = timeRange(float(sys.argv[1]))
+dateArgTo = timeRange(float(sys.argv[2]))
+typeArg = str(sys.argv[3])
+
+print(regresion(dateArgFrom,dateArgTo,typeArg))

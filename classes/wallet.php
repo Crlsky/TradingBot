@@ -18,6 +18,14 @@ class Wallet {
             $this->currencyName => $this->currencyAmmount,
             $this->coinName => $this->coinAmmount);    
     }
+     
+    public function CurrencyAmmount() {
+        return floatval($this->currencyAmmount);
+    }
+
+    public function CoinAmmount() {
+        return floatval($this->coinAmmount);
+    }
 
     public function setCurrencyAmmount($ammount) {
         if($this->currencyAmmount+$ammount < 0)
