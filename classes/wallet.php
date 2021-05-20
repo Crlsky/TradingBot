@@ -35,7 +35,7 @@ class Wallet {
     }
 
     public function setCoinAmmount($ammount) {
-        if($this->coinAmmount+$ammount <0)
+        if($this->coinAmmount+$ammount < 0)
             print("You don not have that much coins.<br/>");
         else
             $this->coinAmmount = $this->coinAmmount+$ammount;

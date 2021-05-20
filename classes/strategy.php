@@ -4,15 +4,21 @@ require_once(dirname(__dir__)."/classes/dataCollector.php");
 class Strategy {
     private $method;
     private $stopLoss;
-
-    public function __construct($method, $stopLoss=0) {
+    private $rate;
+    
+    public function __construct($method=1, $stopLoss=0) {
+        $this->method = $method;
         $this->stopLoss = $stopLoss;
     }
 
     public function predict() {
-        $prediction = new dataCollector;
-        $this->rate = $prediction->bitbayOrderbookLinealRegression(0.5,0,'Buy');
-        
+        switch($this->method){
+            case 1:
+                $prediction = new dataCollector;
+                $this->rate = $prediction->bitbayOrderbookLinealRegression(0.5,0,'Buy');
+                break;
+        }
+            
         return $this->operationByRate();
     }
 

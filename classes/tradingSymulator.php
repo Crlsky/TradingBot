@@ -2,6 +2,7 @@
 require_once(dirname(__DIR__)."/classes/db.php");
 require_once(dirname(__DIR__)."/classes/wallet.php");
 require_once(dirname(__DIR__)."/classes/dataCollector.php");
+require_once(dirname(__DIR__)."/classes/strategy.php");
 
 class tradingSymulator {
     private $wallet;
@@ -11,9 +12,9 @@ class tradingSymulator {
     private $data;
     private $db;
     
-    public function __construct($walletObj, $startegyObj, $operationRate, $interval){
+    public function __construct($walletObj, $strategyObj, $operationRate, $interval){
         $this->wallet = $walletObj;
-        $this->strategy = $startegyObj;
+        $this->strategy = $strategyObj;
         $this->operationRate = $operationRate;
         $this->interval = $interval;
         $this->data = new dataCollector;
@@ -24,22 +25,21 @@ class tradingSymulator {
         return $this->wallet->walletAmmount();
     }
 
-    public function startSimulation(){
+    public function startSymulation(){
         while(true){
             $this->makeTransaction();
-            sleep($interval*3600);
+            sleep($this->interval*3600);
         }
     }
 
     public function makeTransaction(){
-        $operation = $this->startegy->predict();
+        $operation = $this->strategy->predict();
         $coinRate = $this->data->bitbayRate('ETH-PLN');
         $predictionRate = abs($this->strategy->predictionRate());
 
         $currencyAmmount = $this->wallet->CurrencyAmmount();
-
-        $operationCurrency = $currencyAmmount*$this->$operationRate*$predictionRate;
-        $operationCoin = $coinRate*$operationCurrency;
+        $operationCurrency = $currencyAmmount*$predictionRate*$this->operationRate;
+        $operationCoin = $operationCurrency/$coinRate;
 
         if($operation == "Buy")
             $operationCurrency *= -1;
@@ -49,20 +49,24 @@ class tradingSymulator {
         $this->wallet->setCurrencyAmmount($operationCurrency);
         $this->wallet->setCoinAmmount($operationCoin);
 
-        $this->saveTransaction($operationCurrency, $operationCoin);
+        $this->saveTransaction($operationCurrency, $operationCoin, $operation, $coinRate);
     }
 
+    public function saveTransaction($operationCurrency, $operationCoin, $operation, $coinRate) {
+        $coinAmmount = $this->wallet->CoinAmmount();
+        $currencyAmmount = $this->wallet->CurrencyAmmount();
 
-    public function saveTransaction($) {
+        $date = date('Y-m-d H:i:s');
+        $sql = "INSERT INTO tradingTransaction (coin, currency, type, currencyAmmount, coinAmmount, rate, date)
+                VALUES ({$operationCoin}, {$operationCurrency}, '{$operation}', {$currencyAmmount}, {$coinAmmount}, {$coinRate}, '{$date}')";
 
-        $this->db->insert("INSER INTO tradingTransaction (coin, currency, type, currencyAmmount, coinAmmount, rate, date)
-        VALUES ({$operationCoin}, {$operationCurrency}, {$operation}, {$})")
+        $this->db->Insert($sql);
     }
-
 }
 
 $wallet = new Wallet('PLN', 1000, 'ETH');
+$strategy = new Strategy();
+$symulator = new tradingSymulator($wallet, $strategy, 0.05, 0.5);
 
-$simulator = new tradingSymulator($wallet);
-var_dump($simulator->walletData());
+$symulator->startSymulation();
 ?>
